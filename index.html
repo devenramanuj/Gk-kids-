@@ -32,7 +32,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            min-height: 500px; /* થોડી હાઈટ ફિક્સ રાખી છે */
+            min-height: 550px; /* Height increased slightly */
         }
 
         /* LOGO STYLE */
@@ -80,6 +80,23 @@
         .screen { display: none; flex-grow: 1; }
         .screen.active { display: block; animation: fadeUp 0.5s; }
 
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .home-icon-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            transition: transform 0.2s;
+        }
+        .home-icon-btn:hover { transform: scale(1.1); }
+
         .badge {
             background: #5B4B8A;
             color: white;
@@ -87,7 +104,6 @@
             border-radius: 20px;
             font-size: 14px;
             display: inline-block;
-            margin-bottom: 15px;
         }
 
         .question {
@@ -139,14 +155,35 @@
             background: linear-gradient(to right, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 15px 40px;
+            padding: 12px 30px;
             border-radius: 50px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 15px;
             box-shadow: 0 5px 15px rgba(91, 75, 138, 0.4);
+            display: block;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
         }
+
+        .btn-home {
+            background: #fff;
+            color: #5B4B8A;
+            border: 2px solid #5B4B8A;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            display: block;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .btn-home:hover { background: #f0f0f0; }
 
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -155,7 +192,7 @@
 
         /* --- DEVELOPER CREDIT FOOTER --- */
         .dev-footer {
-            margin-top: auto; /* Push to bottom */
+            margin-top: auto;
             padding-top: 20px;
             border-top: 1px solid #f0f0f0;
             font-size: 12px;
@@ -196,7 +233,8 @@
         </div>
 
         <div id="screen-quiz" class="screen">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="top-bar">
+                <button class="home-icon-btn" onclick="goHome()" title="Go Home">🏠</button>
                 <span class="badge" id="quiz-cat-label">Maths</span>
                 <span style="font-weight: bold; color: #5B4B8A;" id="quiz-progress">1/5</span>
             </div>
@@ -211,7 +249,9 @@
                 <span id="final-score">0</span>
             </div>
             <h2 id="result-msg">Good Job!</h2>
-            <button class="btn-restart" onclick="location.reload()">ફરી રમો (Play Again) 🔄</button>
+            
+            <button class="btn-restart" onclick="restartQuiz()">ફરી રમો (Play Again) 🔄</button>
+            <button class="btn-home" onclick="goHome()">Home Page 🏠</button>
         </div>
 
         <div class="dev-footer">
@@ -260,8 +300,10 @@
         let currentQuiz = [];
         let qIndex = 0;
         let score = 0;
+        let currentCategory = ''; // Store category to restart same quiz
 
         function startGame(category) {
+            currentCategory = category;
             const questions = database[category];
             currentQuiz = questions.sort(() => 0.5 - Math.random()).slice(0, 5);
             qIndex = 0;
@@ -275,6 +317,7 @@
 
             document.getElementById('quiz-cat-label').innerText = title;
             document.getElementById('screen-home').classList.remove('active');
+            document.getElementById('screen-result').classList.remove('active'); // Hide result if coming from restart
             document.getElementById('screen-quiz').classList.add('active');
             showQuestion();
         }
@@ -329,6 +372,20 @@
             else msg = "થોડી વધુ મહેનત કરો! (Keep Learning) 📚";
             
             document.getElementById('result-msg').innerText = msg;
+        }
+
+        // New Functions for Home Navigation
+        function goHome() {
+            // Hide all screens
+            document.getElementById('screen-quiz').classList.remove('active');
+            document.getElementById('screen-result').classList.remove('active');
+            // Show Home
+            document.getElementById('screen-home').classList.add('active');
+        }
+
+        function restartQuiz() {
+            // Restart the same category
+            startGame(currentCategory);
         }
     </script>
 </body>
