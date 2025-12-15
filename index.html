@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Student Quiz (8-15 Years)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Noto+Sans+Gujarati:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans Gujarati', 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            color: #333;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.98);
+            width: 100%;
+            max-width: 450px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 500px; /* થોડી હાઈટ ફિક્સ રાખી છે */
+        }
+
+        /* LOGO STYLE */
+        .app-logo {
+            max-width: 120px;
+            height: auto;
+            display: block;
+            margin: 0 auto 15px auto;
+        }
+
+        h1 { color: #5B4B8A; margin: 0 0 5px 0; font-size: 26px; }
+        p { color: #666; margin-bottom: 25px; }
+
+        /* Categories Grid */
+        .grid-menu {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .menu-btn {
+            background: white;
+            border: 2px solid #eee;
+            border-radius: 15px;
+            padding: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .menu-btn:hover {
+            transform: translateY(-3px);
+            border-color: #667eea;
+            background: #f4f6ff;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .menu-icon { font-size: 32px; margin-bottom: 5px; }
+        .menu-text { font-weight: bold; color: #444; font-size: 14px; }
+
+        /* Quiz Section */
+        .screen { display: none; flex-grow: 1; }
+        .screen.active { display: block; animation: fadeUp 0.5s; }
+
+        .badge {
+            background: #5B4B8A;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .question {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 20px 0;
+            line-height: 1.4;
+            min-height: 60px;
+            color: #2d3436;
+        }
+
+        .options-list button {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: white;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.2s;
+            font-family: inherit;
+            color: #555;
+        }
+
+        .options-list button:hover { background: #f9f9f9; border-color: #aaa; }
+        .options-list button.correct { background: #d4edda; border-color: #28a745; color: #155724; font-weight: bold; }
+        .options-list button.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; font-weight: bold; }
+
+        /* Results */
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            margin: 20px auto;
+            font-weight: bold;
+            box-shadow: 0 10px 20px rgba(91, 75, 138, 0.4);
+        }
+
+        .btn-restart {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(91, 75, 138, 0.4);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- DEVELOPER CREDIT FOOTER --- */
+        .dev-footer {
+            margin-top: auto; /* Push to bottom */
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+            font-size: 12px;
+            color: #999;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="screen-home" class="screen active">
+            <img src="logo.png" alt="App Logo" class="app-logo" onerror="this.style.display='none'">
+            
+            <h1>જ્ઞાન કસોટી (Quiz)</h1>
+            <p>વય જૂથ: ૮ થી ૧૫ વર્ષ</p>
+            
+            <div class="grid-menu">
+                <div class="menu-btn" onclick="startGame('math')">
+                    <span class="menu-icon">📐</span>
+                    <span class="menu-text">ગણિત (Maths)</span>
+                </div>
+                <div class="menu-btn" onclick="startGame('science')">
+                    <span class="menu-icon">🚀</span>
+                    <span class="menu-text">વિજ્ઞાન (Science)</span>
+                </div>
+                <div class="menu-btn" onclick="startGame('gk')">
+                    <span class="menu-icon">🌏</span>
+                    <span class="menu-text">સામાન્ય જ્ઞાન</span>
+                </div>
+                <div class="menu-btn" onclick="startGame('english')">
+                    <span class="menu-icon">🔤</span>
+                    <span class="menu-text">English Grammar</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-quiz" class="screen">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="badge" id="quiz-cat-label">Maths</span>
+                <span style="font-weight: bold; color: #5B4B8A;" id="quiz-progress">1/5</span>
+            </div>
+
+            <div class="question" id="question-text">Question loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+
+        <div id="screen-result" class="screen">
+            <h2 style="color: #5B4B8A;">પરિણામ (Result)</h2>
+            <div class="score-circle">
+                <span id="final-score">0</span>
+            </div>
+            <h2 id="result-msg">Good Job!</h2>
+            <button class="btn-restart" onclick="location.reload()">ફરી રમો (Play Again) 🔄</button>
+        </div>
+
+        <div class="dev-footer">
+            Developed by - Devendra Ramanuj
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATABASE ---
+        const database = {
+            math: [
+                { q: "૧૨ નો વર્ગ (Square) કેટલો થાય? (12 x 12)", opts: ["૧૪૪", "૧૨૪", "૧૪૦", "૧૨૨"], a: 0 },
+                { q: "એક ત્રિકોણના ત્રણેય ખૂણાનો સરવાળો કેટલો હોય?", opts: ["૯૦°", "૧૮૦°", "૩૬૦°", "૧૦૦°"], a: 1 },
+                { q: "૧ કિલોગ્રામ = ___ ગ્રામ?", opts: ["૧૦૦", "૫૦૦", "૧૦૦૦", "૧૦"], a: 2 },
+                { q: "વર્તુળની સૌથી મોટી જીવા (Chord) કઈ છે?", opts: ["ત્રિજ્યા", "વ્યાસ", "પરિઘ", "કેન્દ્ર"], a: 1 },
+                { q: "જો x + 5 = 15 હોય, તો x = ?", opts: ["૫", "૨૦", "૧૦", "૮"], a: 2 },
+                { q: "લંબચોરસના ક્ષેત્રફળનું સૂત્ર કયું છે?", opts: ["લંબાઈ x પહોળાઈ", "લંબાઈ + પહોળાઈ", "૨ x લંબાઈ", "બાજુ x બાજુ"], a: 0 }
+            ],
+            science: [
+                { q: "પાણીનું રાસાયણિક સૂત્ર કયું છે?", opts: ["HO2", "H2O", "CO2", "O2"], a: 1 },
+                { q: "આપણા સૂર્યમંડળનો સૌથી મોટો ગ્રહ કયો છે?", opts: ["પૃથ્વી", "શનિ", "ગુરુ", "મંગળ"], a: 2 },
+                { q: "માનવ શરીરમાં કુલ કેટલા હાડકાં હોય છે?", opts: ["૨૦૬", "૩૦૬", "૨૦૦", "૨૧૦"], a: 0 },
+                { q: "વનસ્પતિ પ્રકાશસંશ્લેષણ માટે કયો વાયુ લે છે?", opts: ["ઓક્સિજન", "નાઈટ્રોજન", "કાર્બન ડાયોક્સાઇડ", "હાઈડ્રોજન"], a: 2 },
+                { q: "લોહી શુદ્ધ કરવાનું કામ શરીરનું કયું અંગ કરે છે?", opts: ["હૃદય", "ફેફસાં", "કિડની", "જઠર"], a: 2 },
+                { q: "વિદ્યુત પ્રવાહ (Electric Current) માપવાનો એકમ કયો?", opts: ["વોલ્ટ", "એમ્પિયર", "વોટ", "મીટર"], a: 1 }
+            ],
+            gk: [
+                { q: "ભારતના વર્તમાન વડાપ્રધાન કોણ છે?", opts: ["નરેન્દ્ર મોદી", "રાહુલ ગાંધી", "અમિત શાહ", "મનમોહન સિંહ"], a: 0 },
+                { q: "ગુજરાતની સ્થાપના ક્યારે થઈ હતી?", opts: ["૧૯૪૭", "૧૯૫૦", "૧૯૬૦", "૧૯૬૨"], a: 2 },
+                { q: "વિશ્વનું સૌથી ઊંચું શિખર કયું છે?", opts: ["માઉન્ટ આબુ", "કંચનજંઘા", "માઉન્ટ એવરેસ્ટ", "કૈલાસ"], a: 2 },
+                { q: "ક્રિકેટ વર્લ્ડ કપ ૨૦૨૩ કોણે જીત્યો?", opts: ["ભારત", "ઓસ્ટ્રેલિયા", "ઇંગ્લેન્ડ", "પાકિસ્તાન"], a: 1 },
+                { q: "સ્ટેચ્યુ ઓફ યુનિટી (Statue of Unity) કયા જિલ્લામાં છે?", opts: ["વડોદરા", "નર્મદા", "ભરૂચ", "સુરત"], a: 1 },
+                { q: "કમ્પ્યુટરના પિતા કોને કહેવાય છે?", opts: ["બિલ ગેટ્સ", "ચાર્લ્સ બેબેજ", "સ્ટીવ જોબ્સ", "એલોન મસ્ક"], a: 1 }
+            ],
+            english: [
+                { q: "Past tense of 'Go'?", opts: ["Goned", "Goes", "Went", "Gone"], a: 2 },
+                { q: "Which is the correct spelling?", opts: ["Tommorrow", "Tomorrow", "Tomoro", "Tumorrow"], a: 1 },
+                { q: "Plural (બહુવચન) of 'Child'?", opts: ["Childs", "Children", "Childrens", "Childes"], a: 1 },
+                { q: "Opposite of 'Victory'?", opts: ["Win", "Success", "Defeat", "Loss"], a: 2 },
+                { q: "Select the Verb (ક્રિયાપદ):", opts: ["Run", "Blue", "Table", "Happy"], a: 0 },
+                { q: "'Honesty is the best ______.'", opts: ["Police", "Policy", "Polite", "Place"], a: 1 }
+            ]
+        };
+
+        let currentQuiz = [];
+        let qIndex = 0;
+        let score = 0;
+
+        function startGame(category) {
+            const questions = database[category];
+            currentQuiz = questions.sort(() => 0.5 - Math.random()).slice(0, 5);
+            qIndex = 0;
+            score = 0;
+
+            let title = category.toUpperCase();
+            if(category === 'math') title = "ગણિત";
+            if(category === 'science') title = "વિજ્ઞાન";
+            if(category === 'gk') title = "સામાન્ય જ્ઞાન";
+            if(category === 'english') title = "English";
+
+            document.getElementById('quiz-cat-label').innerText = title;
+            document.getElementById('screen-home').classList.remove('active');
+            document.getElementById('screen-quiz').classList.add('active');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const qData = currentQuiz[qIndex];
+            document.getElementById('quiz-progress').innerText = (qIndex + 1) + " / " + currentQuiz.length;
+            document.getElementById('question-text').innerText = qData.q;
+
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = '';
+
+            qData.opts.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.innerText = optText;
+                btn.onclick = () => checkAnswer(idx, btn);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIdx, btn) {
+            const qData = currentQuiz[qIndex];
+            const allBtns = document.querySelectorAll('#options-container button');
+            allBtns.forEach(b => b.disabled = true);
+
+            if(selectedIdx === qData.a) {
+                btn.classList.add('correct');
+                score++;
+            } else {
+                btn.classList.add('wrong');
+                allBtns[qData.a].classList.add('correct');
+            }
+
+            setTimeout(() => {
+                qIndex++;
+                if(qIndex < currentQuiz.length) {
+                    showQuestion();
+                } else {
+                    endGame();
+                }
+            }, 1200);
+        }
+
+        function endGame() {
+            document.getElementById('screen-quiz').classList.remove('active');
+            document.getElementById('screen-result').classList.add('active');
+            document.getElementById('final-score').innerText = score + "/5";
+            
+            let msg = "";
+            if(score === 5) msg = "ખૂબ સરસ! (Excellent) 🌟";
+            else if(score >= 3) msg = "સરસ પ્રયાસ! (Good Job) 👍";
+            else msg = "થોડી વધુ મહેનત કરો! (Keep Learning) 📚";
+            
+            document.getElementById('result-msg').innerText = msg;
+        }
+    </script>
+</body>
+</html>
